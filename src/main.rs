@@ -1,8 +1,6 @@
 use itertools::{Itertools};
 
-
 fn main() {
-
 
     // For any three digits a, b, c, N1, N3 and N5 will be the respective dot products of distinct permutations
     // of a 3-element vector [a, b, c] and a vector of powers of 10 [100, 10, 1].
@@ -18,14 +16,13 @@ fn main() {
     let dot_comp = vec![3, 2, 1];
 
     // The permutations method outputs in lexigraphical order so the first two begin with 100, the next with 10 and the last with 1
-    // For N1 to be the largest value, it must have come from a powers vector with 100 as its first element
-    // For N5 to be the largest value, it must not have come from a powers vector with 100 as its first element
-    // N3 can have a first powers element equal to 100 or 10 and still be less than N1 but greater than N5
+    // For N1 to be the largest value, it can't start with the smallest digit (0th power)
+    // For N5 to be the smallest value, it can't start with the largest digit (2nd power)
 
-    for n1 in &three_digs[..2] {
-        for n3 in &three_digs[..4] {
+    for n1 in &three_digs[..4] {
+        for n3 in &three_digs {
             if dot_prod(n1, &dot_comp) > dot_prod(n3, &dot_comp) {
-                for n5 in &three_digs[2..] {
+                for n5 in &three_digs[2..6] {
                     if dot_prod(n3, &dot_comp) > dot_prod(n5, &dot_comp) {
                         sequences.push(vec![n1, n3, n5]);   
                     }         
@@ -33,16 +30,6 @@ fn main() {
             }
         }
     }
-
-//  Alternative approach generates all possible combinations and then filters out invalid ones
-//    let sequences = three_digs.iter().combinations(3)
-//                                            .filter(|v| dot_prod(v[0], &dot_comp) > dot_prod(v[1], &dot_comp) 
-//                                            && dot_prod(v[1], &dot_comp) > dot_prod(v[2], &dot_comp)
-//                                            && v[0][0] == 100usize
-//                                            && v[1][0] > 1usize
-//                                            && v[2][0] < 100usize)    
-//                                            .collect::<Vec<Vec<&Vec<usize>>>>();
-//    println!("Sequences: {:?}", sequences);
 
 //  Finally we take each valid sequence of powers vectors and apply it to every possible combination of 3 descending digits a, b, c
 //  We can reduce the amount of looping with the following insights:
@@ -70,6 +57,10 @@ fn main() {
                     let n_1 = dot_prod(sequence[0], &abc);
                     let n_3 = dot_prod(sequence[1], &abc);
                     let n_5 = dot_prod(sequence[2], &abc);
+
+                    // N1, N3, N5 sum to less than 2000
+                    if n_1 + n_3 + n_5 > 1999 {continue}
+
                     let n_2 = n_1 - n_3;
                     let n_4 = n_3 - n_5;
 
